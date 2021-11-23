@@ -10,7 +10,7 @@ public class AttackController : MonoBehaviour
     private FixedJoystick _joystick;
 
     [SerializeField]
-    private LineRenderer _lineRenderer;
+    private GameObject _attackRangeMark;
 
     [SerializeField]
     private Gun _gun;
@@ -19,14 +19,14 @@ public class AttackController : MonoBehaviour
     private float _range = 1.0f;
 
     [SerializeField]
-    private float TrailDistance = 1.0f;
+    private float _trailDistance = 4.0f;
 
     [SerializeField]
     private LayerMask layerMask;
 
     #endregion
 
-    private Vector3 LookAtPoint;
+    private Vector3 _lookAtPoint;
 
     #region MonoBehaviour
     private void OnEnable()
@@ -42,27 +42,30 @@ public class AttackController : MonoBehaviour
     {
         if (Mathf.Abs(_joystick.Horizontal) > 0 || Mathf.Abs(_joystick.Vertical) > 0)
         {
-            _lineRenderer.gameObject.SetActive(true);
+            _attackRangeMark.gameObject.SetActive(true);
 
-            LookAtPoint = new Vector3(_joystick.Horizontal * _range + transform.position.x, _lineRenderer.transform.position.y, _joystick.Vertical * _range + transform.position.z);
+            _lookAtPoint = new Vector3(_joystick.Horizontal * _range + transform.position.x, _attackRangeMark.transform.position.y, _joystick.Vertical * _range + transform.position.z);
 
-            transform.LookAt(new Vector3(LookAtPoint.x, transform.position.y, LookAtPoint.z));
+            transform.LookAt(new Vector3(_lookAtPoint.x, transform.position.y, _lookAtPoint.z));
 
-            _lineRenderer.SetPosition(0, transform.position);
+            _attackRangeMark.transform.localScale = new Vector3(1, _trailDistance, 1);
 
-            if (Physics.Raycast(transform.position, transform.forward, out RaycastHit hit, TrailDistance, layerMask))
+            if (Physics.Raycast(transform.position, transform.forward, out RaycastHit hit, _trailDistance, layerMask))
             {
-                _lineRenderer.SetPosition(1, hit.point);
+                var k = (hit.point - transform.position).magnitude;
+
+                _attackRangeMark.transform.localScale = new Vector3(1, k, 1);
             }
             else
             {
-                _lineRenderer.SetPosition(1, transform.position + transform.forward * TrailDistance);
-                _lineRenderer.SetPosition(1, new Vector3(_lineRenderer.GetPosition(1).x, _lineRenderer.transform.position.y, _lineRenderer.GetPosition(1).z));
+                var k = (transform.forward * _trailDistance).magnitude;
+
+                _attackRangeMark.transform.localScale = new Vector3(1, k, 1);
             }
         }
         else
         {
-            _lineRenderer.gameObject.SetActive(false);
+            _attackRangeMark.gameObject.SetActive(false);
         }
     }
 

@@ -14,6 +14,9 @@ public class Gun : MonoBehaviour
     private Transform _barrel;
 
     [SerializeField]
+    private float _maxDistance = 1.0f;
+
+    [SerializeField]
     private int _bulletPerTime = 4;
 
     [SerializeField]
@@ -25,8 +28,6 @@ public class Gun : MonoBehaviour
     [SerializeField]
     private float _bulletSpeed = 1.0f;
 
-    [SerializeField]
-    private float _bulletLife = 0.3f;
     [SerializeField]
     private Transform _bulletsContainer;
 
@@ -106,7 +107,7 @@ public class Gun : MonoBehaviour
         {
             copyActiveBullets[i].SetActive(true);
             copyActiveBullets[i].transform.position = _barrel.position;
-            copyActiveBullets[i].GetComponent<Rigidbody>().AddForce(transform.forward * _bulletSpeed, ForceMode.Impulse);
+            copyActiveBullets[i].GetComponent<Rigidbody>().velocity = transform.forward * _bulletSpeed;
             StartCoroutine("Reshoot", copyActiveBullets[i]);
             yield return new WaitForSeconds(_timeBetweenBullets);
         }
@@ -114,7 +115,7 @@ public class Gun : MonoBehaviour
 
     private IEnumerator Reshoot(GameObject returnedElement)
     {
-        yield return new WaitForSeconds(_bulletLife);
+        yield return new WaitForSeconds(_maxDistance / _bulletSpeed);
         ReturnElementToPool(returnedElement);
     }
 
