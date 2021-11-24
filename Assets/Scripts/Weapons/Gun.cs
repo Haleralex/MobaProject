@@ -33,7 +33,6 @@ public class Gun : MonoBehaviour, IWeapon
 
     #endregion
 
-
     private List<GameObject> _bulletPool = new List<GameObject>();
     private List<GameObject> _activeBullets = new List<GameObject>();
 
@@ -78,23 +77,7 @@ public class Gun : MonoBehaviour, IWeapon
 
     private GameObject GetFreeElementFromPool()
     {
-        foreach (var k in _bulletPool.Except(_activeBullets))
-        {
-            return k;
-        }
-
-        return null;
-    }
-
-    private void ReturnElementToPool(GameObject returnedElement)
-    {
-        if (!_activeBullets.Contains(returnedElement))
-            return;
-
-        returnedElement.GetComponent<Rigidbody>().velocity = Vector3.zero;
-        returnedElement.SetActive(false);
-
-        _activeBullets.Remove(returnedElement);
+        return _bulletPool.FirstOrDefault(a => !_activeBullets.Contains(a));
     }
 
     private IEnumerator Shoot()
@@ -112,7 +95,7 @@ public class Gun : MonoBehaviour, IWeapon
             var bulletRB = copyActiveBullets[i].GetComponent<Rigidbody>();
 
             bulletRB.velocity = transform.forward * _bulletSpeed;
-            
+
             StartCoroutine("Reshoot", copyActiveBullets[i]);
 
             yield return new WaitForSeconds(_timeBetweenBullets);
@@ -123,6 +106,17 @@ public class Gun : MonoBehaviour, IWeapon
     {
         yield return new WaitForSeconds(_maxDistance / _bulletSpeed);
         ReturnElementToPool(returnedElement);
+    }
+
+    private void ReturnElementToPool(GameObject returnedElement)
+    {
+        if (!_activeBullets.Contains(returnedElement))
+            return;
+
+        returnedElement.GetComponent<Rigidbody>().velocity = Vector3.zero;
+        returnedElement.SetActive(false);
+
+        _activeBullets.Remove(returnedElement);
     }
 
     public void Reload()
