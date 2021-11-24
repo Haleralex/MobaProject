@@ -75,7 +75,7 @@ public class AttackController : MonoBehaviour
     {
         if (Mathf.Pow(_joystick.Horizontal, 2) + Mathf.Pow(_joystick.Vertical, 2) > 0.9f)
         {
-            _gun.Attack();
+            _gun.PerformAttack();
         }
     }
 }

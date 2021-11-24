@@ -18,17 +18,40 @@ public class MovementController : MonoBehaviour
     [SerializeField]
     private float _range = 1.0f;
 
+    private InputActions test;
+
     #endregion
 
     #region MonoBehaviour
 
+    private void Awake()
+    {
+        test = new InputActions();
+    }
+
+    private void OnEnable()
+    {
+        test.Enable();
+    }
+    private void OnDisable()
+    {
+        test.Disable();
+    }
+
     public void FixedUpdate()
     {
-        if (Mathf.Abs(_joystick.Horizontal) > 0 || Mathf.Abs(_joystick.Vertical) > 0)
+        //var direction = test.ActionMap.Move.ReadValue<Vector2>(); //пока не надо
+
+        Move(new Vector2(_joystick.Horizontal, _joystick.Vertical));
+    }
+
+    private void Move(Vector2 direction)
+    {
+        if (Mathf.Abs(direction.x) > 0 || Mathf.Abs(direction.y) > 0)
         {
             _playerSprite.gameObject.SetActive(true);
 
-            _playerSprite.transform.position = new Vector3(_joystick.Horizontal * _range + transform.position.x, _playerSprite.transform.position.y, _joystick.Vertical * _range + transform.position.z);
+            _playerSprite.transform.position = new Vector3(direction.x * _range + transform.position.x, _playerSprite.transform.position.y, direction.y * _range + transform.position.z);
 
             transform.LookAt(new Vector3(_playerSprite.transform.position.x, transform.position.y, _playerSprite.transform.position.z));
 

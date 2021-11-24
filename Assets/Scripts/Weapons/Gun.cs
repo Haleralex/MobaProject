@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class Gun : MonoBehaviour
+public class Gun : MonoBehaviour, IWeapon
 {
     #region SerializeFields
 
@@ -37,6 +37,8 @@ public class Gun : MonoBehaviour
     private List<GameObject> _bulletPool = new List<GameObject>();
     private List<GameObject> _activeBullets = new List<GameObject>();
 
+    public float Damage { get => 0; set => throw new System.NotImplementedException(); }
+
 
 
     #region MonoBehaviour
@@ -56,7 +58,7 @@ public class Gun : MonoBehaviour
     #endregion
 
     #region Methods
-    public void Attack()
+    public void PerformAttack()
     {
         for (int i = 0; i < _bulletPerTime; i++)
         {
@@ -93,7 +95,6 @@ public class Gun : MonoBehaviour
         returnedElement.SetActive(false);
 
         _activeBullets.Remove(returnedElement);
-
     }
 
     private IEnumerator Shoot()
@@ -107,8 +108,13 @@ public class Gun : MonoBehaviour
         {
             copyActiveBullets[i].SetActive(true);
             copyActiveBullets[i].transform.position = _barrel.position;
-            copyActiveBullets[i].GetComponent<Rigidbody>().velocity = transform.forward * _bulletSpeed;
+
+            var bulletRB = copyActiveBullets[i].GetComponent<Rigidbody>();
+
+            bulletRB.velocity = transform.forward * _bulletSpeed;
+            
             StartCoroutine("Reshoot", copyActiveBullets[i]);
+
             yield return new WaitForSeconds(_timeBetweenBullets);
         }
     }
@@ -117,6 +123,11 @@ public class Gun : MonoBehaviour
     {
         yield return new WaitForSeconds(_maxDistance / _bulletSpeed);
         ReturnElementToPool(returnedElement);
+    }
+
+    public void Reload()
+    {
+        Debug.Log("Reload");
     }
 
     #endregion
